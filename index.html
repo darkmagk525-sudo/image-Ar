@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Creator Pro - منشئ الواقع المعزز المحترف</title>
+    <meta name="description" content="أداة احترافية لإنشاء تجارب الواقع المعزز من الصور - بدون تطبيقات">
+    <meta name="keywords" content="واقع معزز, AR, QR Code, صور, تجربة تفاعلية">
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- AR.js and A-Frame -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar-nft.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <!-- Additional Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <div class="ar-icon">🚀</div>
+                <h2>AR Creator Pro</h2>
+            </div>
+            <div class="loading-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p id="loading-text">جاري التحميل...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <nav class="main-nav" id="main-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span class="brand-icon">🎯</span>
+                <span class="brand-text">AR Creator Pro</span>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" id="help-btn" title="المساعدة">
+                    <span class="icon">❓</span>
+                </button>
+                <button class="nav-btn" id="settings-btn" title="الإعدادات">
+                    <span class="icon">⚙️</span>
+                </button>
+                <button class="nav-btn" id="gallery-btn" title="معرض التجارب">
+                    <span class="icon">🖼️</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <span class="title-main">منشئ الواقع المعزز</span>
+                        <span class="title-sub">المحترف</span>
+                    </h1>
+                    <p class="hero-description">
+                        حوّل صورك إلى تجارب واقع معزز تفاعلية في ثوانٍ معدودة
+                        <br>
+                        <span class="highlight">بدون تطبيقات • بدون تعقيد • احترافي 100%</span>
+                    </p>
+                </div>
+                <div class="hero-actions">
+                    <button class="cta-button primary" id="start-creating">
+                        <span class="btn-icon">🎨</span>
+                        <span class="btn-text">ابدأ الإنشاء الآن</span>
+                        <span class="btn-arrow">←</span>
+                    </button>
+                    <button class="cta-button secondary" id="view-demo">
+                        <span class="btn-icon">👁️</span>
+                        <span class="btn-text">شاهد العرض التوضيحي</span>
+                    </button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="ar-preview-container">
+                    <div class="floating-elements">
+                        <div class="float-item qr-float">📱</div>
+                        <div class="float-item ar-float">🌟</div>
+                        <div class="float-item image-float">🖼️</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Application -->
+        <main class="main-content" id="main-content">
+            
+            <!-- Step 1: Image Upload/Capture -->
+            <section class="step-section active" id="step-upload" data-step="1">
+                <div class="step-header">
+                    <div class="step-indicator">
+                        <span class="step-number">1</span>
+                        <span class="step-title">اختر صورتك</span>
+                    </div>
+                    <div class="step-progress">
+                        <div class="progress-steps">
+                            <div class="progress-step active"></div>
+                            <div class="progress-step"></div>
+                            <div class="progress-step"></div>
+                            <div class="progress-step"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-content">
+                    <div class="upload-zone" id="upload-zone">
+                        <div class="upload-options">
+                            <div class="upload-method" id="camera-method">
+                                <div class="method-icon">📷</div>
+                                <h3>التقط صورة جديدة</h3>
+                                <p>استخدم كاميرا جهازك لالتقاط صورة فورية</p>
+                                <button class="method-btn" id="camera-btn">
+                                    <span class="btn-icon">📸</span>
+                                    فتح الكاميرا
+                                </button>
+                            </div>
+                            
+                            <div class="upload-divider">
+                                <span>أو</span>
+                            </div>
+                            
+                            <div class="upload-method" id="file-method">
+                                <div class="method-icon">📁</div>
+                                <h3>حمّل من جهازك</h3>
+                                <p>اختر صورة من معرض الصور أو الملفات</p>
+                                <button class="method-btn" id="upload-btn">
+                                    <span class="btn-icon">⬆️</span>
+                                    اختر ملف
+                                </button>
+                                <input type="file" id="file-input" accept="image/*" multiple style="display: none;">
+                            </div>
+                        </div>
+
+                        <!-- Drag & Drop Area -->
+                        <div class="drag-drop-area" id="drag-drop-area">
+                            <div class="drag-content">
+                                <div class="drag-icon">📎</div>
+                                <h3>اسحب الصور هنا</h3>
+                                <p>أو انقر لاختيار الملفات</p>
+                                <div class="supported-formats">
+                                    <span>JPG</span>
+                                    <span>PNG</span>
+                                    <span>WEBP</span>
+                                    <span>GIF</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Camera Interface -->
+                    <div class="camera-interface" id="camera-interface" style="display: none;">
+                        <div class="camera-container">
+                            <video id="camera-video" autoplay playsinline muted></video>
+                            <canvas id="camera-canvas" style="display: none;"></canvas>
+                            
+                            <div class="camera-overlay">
+                                <div class="camera-frame"></div>
+                                <div class="camera-guides">
+                                    <div class="guide-line horizontal"></div>
+                                    <div class="guide-line vertical"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="camera-controls">
+                                <button class="camera-control-btn" id="switch-camera" title="تبديل الكاميرا">
+                                    <span class="icon">🔄</span>
+                                </button>
+                                <button class="capture-btn" id="capture-btn">
+                                    <div class="capture-ring"></div>
+                                    <div class="capture-inner"></div>
+                                </button>
+                                <button class="camera-control-btn" id="close-camera" title="إغلاق">
+                                    <span class="icon">✕</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 2: Image Editor -->
+            <section class="step-section" id="step-editor" data-step="2">
+                <div class="step-header">
+                    <div class="step-indicator">
+                        <span class="step-number">2</span>
+                        <span class="step-title">تحرير الصورة</span>
+                    </div>
+                    <div class="step-progress">
+                        <div class="progress-steps">
+                            <div class="progress-step completed"></div>
+                            <div class="progress-step active"></div>
+                            <div class="progress-step"></div>
+                            <div class="progress-step"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-content">
+                    <div class="editor-workspace">
+                        <div class="editor-canvas-container">
+                            <canvas id="editor-canvas"></canvas>
+                            <div class="canvas-tools">
+                                <button class="tool-btn" id="crop-tool" title="قص">✂️</button>
+                                <button class="tool-btn" id="rotate-tool" title="تدوير">🔄</button>
+                                <button class="tool-btn" id="flip-tool" title="انعكاس">↔️</button>
+                                <button class="tool-btn" id="reset-tool" title="إعادة تعيين">↩️</button>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-controls">
+                            <div class="control-tabs">
+                                <button class="tab-btn active" data-tab="adjustments">التعديلات</button>
+                                <button class="tab-btn" data-tab="filters">الفلاتر</button>
+                                <button class="tab-btn" data-tab="effects">التأثيرات</button>
+                            </div>
+                            
+                            <div class="control-panels">
+                                <!-- Adjustments Panel -->
+                                <div class="control-panel active" id="adjustments-panel">
+                                    <div class="control-group">
+                                        <label>السطوع</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="brightness" min="0" max="200" value="100">
+                                            <span class="slider-value" id="brightness-value">100%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="control-group">
+                                        <label>التباين</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="contrast" min="0" max="200" value="100">
+                                            <span class="slider-value" id="contrast-value">100%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="control-group">
+                                        <label>التشبع</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="saturation" min="0" max="200" value="100">
+                                            <span class="slider-value" id="saturation-value">100%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="control-group">
+                                        <label>الوضوح</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="sharpness" min="0" max="200" value="100">
+                                            <span class="slider-value" id="sharpness-value">100%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Filters Panel -->
+                                <div class="control-panel" id="filters-panel">
+                                    <div class="filter-grid">
+                                        <div class="filter-item active" data-filter="none">
+                                            <div class="filter-preview"></div>
+                                            <span>الأصلي</span>
+                                        </div>
+                                        <div class="filter-item" data-filter="vintage">
+                                            <div class="filter-preview vintage"></div>
+                                            <span>كلاسيكي</span>
+                                        </div>
+                                        <div class="filter-item" data-filter="bw">
+                                            <div class="filter-preview bw"></div>
+                                            <span>أبيض وأسود</span>
+                                        </div>
+                                        <div class="filter-item" data-filter="warm">
+                                            <div class="filter-preview warm"></div>
+                                            <span>دافئ</span>
+                                        </div>
+                                        <div class="filter-item" data-filter="cool">
+                                            <div class="filter-preview cool"></div>
+                                            <span>بارد</span>
+                                        </div>
+                                        <div class="filter-item" data-filter="dramatic">
+                                            <div class="filter-preview dramatic"></div>
+                                            <span>درامي</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Effects Panel -->
+                                <div class="control-panel" id="effects-panel">
+                                    <div class="effect-controls">
+                                        <div class="control-group">
+                                            <label>ضبابية</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="blur" min="0" max="10" value="0" step="0.1">
+                                                <span class="slider-value" id="blur-value">0</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="control-group">
+                                            <label>توهج</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="glow" min="0" max="100" value="0">
+                                                <span class="slider-value" id="glow-value">0%</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="control-group">
+                                            <label>ظلال</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="shadow" min="0" max="100" value="0">
+                                                <span class="slider-value" id="shadow-value">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-actions">
+                        <button class="action-btn secondary" id="back-to-upload">
+                            <span class="btn-icon">←</span>
+                            رجوع
+                        </button>
+                        <button class="action-btn primary" id="continue-to-ar">
+                            <span class="btn-icon">🎯</span>
+                            متابعة إلى AR
+                            <span class="btn-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 3: AR Configuration -->
+            <section class="step-section" id="step-ar-config" data-step="3">
+                <div class="step-header">
+                    <div class="step-indicator">
+                        <span class="step-number">3</span>
+                        <span class="step-title">إعداد الواقع المعزز</span>
+                    </div>
+                    <div class="step-progress">
+                        <div class="progress-steps">
+                            <div class="progress-step completed"></div>
+                            <div class="progress-step completed"></div>
+                            <div class="progress-step active"></div>
+                            <div class="progress-step"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-content">
+                    <div class="ar-config-workspace">
+                        <div class="ar-preview-container">
+                            <div class="ar-preview" id="ar-preview">
+                                <div class="preview-scene">
+                                    <div class="ar-image-preview" id="ar-image-preview"></div>
+                                    <div class="ar-environment">
+                                        <div class="ground-plane"></div>
+                                        <div class="reference-objects">
+                                            <div class="ref-cube"></div>
+                                            <div class="ref-sphere"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ar-controls">
+                            <div class="control-section">
+                                <h3>خصائص الصورة</h3>
+                                <div class="control-group">
+                                    <label>الحجم</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="ar-scale" min="0.1" max="5" value="1" step="0.1">
+                                        <span class="slider-value" id="scale-value">1.0x</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label>الارتفاع</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="ar-height" min="-2" max="3" value="0" step="0.1">
+                                        <span class="slider-value" id="height-value">0.0m</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label>الدوران</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="ar-rotation" min="0" max="360" value="0">
+                                        <span class="slider-value" id="rotation-value">0°</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-section">
+                                <h3>تأثيرات AR</h3>
+                                <div class="effect-toggles">
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ar-animation">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">حركة دورانية</span>
+                                    </label>
+                                    
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ar-glow">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">توهج</span>
+                                    </label>
+                                    
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ar-shadow">
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-label">ظلال</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="control-section">
+                                <h3>نوع العلامة</h3>
+                                <div class="marker-options">
+                                    <label class="marker-option">
+                                        <input type="radio" name="marker-type" value="hiro" checked>
+                                        <span class="marker-preview hiro-marker"></span>
+                                        <span class="marker-label">Hiro (افتراضي)</span>
+                                    </label>
+                                    <label class="marker-option">
+                                        <input type="radio" name="marker-type" value="kanji">
+                                        <span class="marker-preview kanji-marker"></span>
+                                        <span class="marker-label">Kanji</span>
+                                    </label>
+                                    <label class="marker-option">
+                                        <input type="radio" name="marker-type" value="custom">
+                                        <span class="marker-preview custom-marker"></span>
+                                        <span class="marker-label">مخصص</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ar-actions">
+                        <button class="action-btn secondary" id="back-to-editor">
+                            <span class="btn-icon">←</span>
+                            رجوع للتحرير
+                        </button>
+                        <button class="action-btn primary" id="generate-ar">
+                            <span class="btn-icon">🚀</span>
+                            إنشاء تجربة AR
+                            <span class="btn-arrow">→</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Step 4: Share & Export -->
+            <section class="step-section" id="step-share" data-step="4">
+                <div class="step-header">
+                    <div class="step-indicator">
+                        <span class="step-number">4</span>
+                        <span class="step-title">مشاركة التجربة</span>
+                    </div>
+                    <div class="step-progress">
+                        <div class="progress-steps">
+                            <div class="progress-step completed"></div>
+                            <div class="progress-step completed"></div>
+                            <div class="progress-step completed"></div>
+                            <div class="progress-step active"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-content">
+                    <div class="share-success" id="share-success">
+                        <div class="success-animation">
+                            <div class="success-icon">✨</div>
+                            <h2>تم إنشاء تجربة AR بنجاح!</h2>
+                            <p>يمكن الآن مشاركة تجربتك مع الآخرين</p>
+                        </div>
+                        
+                        <div class="share-options">
+                            <div class="qr-section">
+                                <div class="qr-container">
+                                    <canvas id="qr-canvas"></canvas>
+                                    <div class="qr-overlay">
+                                        <div class="qr-logo">AR</div>
+                                    </div>
+                                </div>
+                                <div class="qr-actions">
+                                    <button class="qr-btn" id="download-qr">
+                                        <span class="btn-icon">💾</span>
+                                        تحميل QR
+                                    </button>
+                                    <button class="qr-btn" id="print-qr">
+                                        <span class="btn-icon">🖨️</span>
+                                        طباعة
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="link-section">
+                                <div class="link-container">
+                                    <input type="text" id="ar-link" readonly>
+                                    <button class="copy-btn" id="copy-link">
+                                        <span class="btn-icon">📋</span>
+                                        نسخ
+                                    </button>
+                                </div>
+                                
+                                <div class="share-buttons">
+                                    <button class="share-btn whatsapp" id="share-whatsapp">
+                                        <span class="btn-icon">💬</span>
+                                        واتساب
+                                    </button>
+                                    <button class="share-btn telegram" id="share-telegram">
+                                        <span class="btn-icon">✈️</span>
+                                        تيليجرام
+                                    </button>
+                                    <button class="share-btn email" id="share-email">
+                                        <span class="btn-icon">📧</span>
+                                        إيميل
+                                    </button>
+                                    <button class="share-btn more" id="share-more">
+                                        <span class="btn-icon">📤</span>
+                                        المزيد
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="experience-info">
+                            <div class="info-card">
+                                <h3>معلومات التجربة</h3>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">تاريخ الإنشاء:</span>
+                                        <span class="info-value" id="creation-date"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">حجم الصورة:</span>
+                                        <span class="info-value" id="image-size"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">نوع العلامة:</span>
+                                        <span class="info-value" id="marker-type"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">مدة الصلاحية:</span>
+                                        <span class="info-value">30 يوم</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="final-actions">
+                            <button class="action-btn secondary" id="test-ar">
+                                <span class="btn-icon">👁️</span>
+                                اختبر AR الآن
+                            </button>
+                            <button class="action-btn primary" id="create-new">
+                                <span class="btn-icon">➕</span>
+                                إنشاء تجربة جديدة
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AR Viewer -->
+            <section class="ar-viewer" id="ar-viewer" style="display: none;">
+                <div class="ar-header">
+                    <div class="ar-info">
+                        <h2>تجربة الواقع المعزز</h2>
+                        <p>وجّه الكاميرا نحو العلامة لرؤية التجربة</p>
+                    </div>
+                    <button class="ar-close-btn" id="close-ar">
+                        <span class="icon">✕</span>
+                    </button>
+                </div>
+                
+                <div class="ar-scene-container">
+                    <a-scene 
+                        id="ar-scene"
+                        embedded 
+                        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+                        vr-mode-ui="enabled: false"
+                        renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+                        loading-screen="enabled: false">
+                        
+                        <a-assets>
+                            <img id="ar-target-image" crossorigin="anonymous">
+                        </a-assets>
+                        
+                        <a-marker preset="hiro" id="ar-marker">
+                            <a-image 
+                                id="ar-display-image"
+                                src="#ar-target-image"
+                                position="0 0 0"
+                                scale="1 1 1"
+                                rotation="-90 0 0"
+                                material="transparent: true; alphaTest: 0.1"
+                                animation__mouseenter="property: scale; to: 1.1 1.1 1.1; startEvents: mouseenter; dur: 300"
+                                animation__mouseleave="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 300">
+                            </a-image>
+                            
+                            <!-- Lighting -->
+                            <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+                            <a-light type="directional" position="2 4 2" color="#ffffff" intensity="0.8" shadow="cast: true"></a-light>
+                            
+                            <!-- Optional effects -->
+                            <a-ring 
+                                id="ar-ring-effect"
+                                position="0 -0.01 0"
+                                rotation="-90 0 0"
+                                radius-inner="0.8"
+                                radius-outer="1.2"
+                                color="#667eea"
+                                opacity="0.3"
+                                animation="property: rotation; to: -90 360 0; loop: true; dur: 10000"
+                                visible="false">
+                            </a-ring>
+                        </a-marker>
+                        
+                        <a-entity camera look-controls wasd-controls></a-entity>
+                    </a-scene>
+                </div>
+                
+                <div class="ar-controls-overlay">
+                    <div class="ar-status" id="ar-status">
+                        <span class="status-icon">🔍</span>
+                        <span class="status-text">ابحث عن العلامة...</span>
+                    </div>
+                    
+                    <div class="ar-actions-bottom">
+                        <button class="ar-action-btn" id="ar-screenshot">
+                            <span class="icon">📸</span>
+                            لقطة شاشة
+                        </button>
+                        <button class="ar-action-btn" id="ar-record">
+                            <span class="icon">🎥</span>
+                            تسجيل
+                        </button>
+                        <button class="ar-action-btn" id="ar-share-live">
+                            <span class="icon">📤</span>
+                            مشاركة
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals and Overlays -->
+        <div class="modal-overlay" id="modal-overlay" style="display: none;">
+            <div class="modal" id="help-modal">
+                <div class="modal-header">
+                    <h2>كيفية الاستخدام</h2>
+                    <button class="modal-close" data-modal="help-modal">✕</button>
+                </div>
+                <div class="modal-content">
+                    <div class="help-steps">
+                        <div class="help-step">
+                            <div class="help-icon">📷</div>
+                            <h3>1. اختر صورتك</h3>
+                            <p>التقط صورة جديدة أو حمّل صورة من جهازك</p>
+                        </div>
+                        <div class="help-step">
+                            <div class="help-icon">✨</div>
+                            <h3>2. حرر الصورة</h3>
+                            <p>طبق الفلاتر والتأثيرات لتحسين صورتك</p>
+                        </div>
+                        <div class="help-step">
+                            <div class="help-icon">🎯</div>
+                            <h3>3. اضبط AR</h3>
+                            <p>حدد حجم وموضع الصورة في الواقع المعزز</p>
+                        </div>
+                        <div class="help-step">
+                            <div class="help-icon">📱</div>
+                            <h3>4. شارك التجربة</h3>
+                            <p>احصل على QR كود أو رابط لمشاركة تجربتك</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toast-container"></div>
+        
+        <!-- File Protocol Warning -->
+        <div id="file-protocol-warning" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center; color: white; font-family: Cairo, sans-serif;">
+            <div style="background: #1a1a1a; padding: 40px; border-radius: 20px; max-width: 700px; text-align: center; border: 3px solid #ff4444; box-shadow: 0 0 30px rgba(255,68,68,0.5);">
+                <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
+                <h2 style="color: #ff4444; margin-bottom: 25px; font-size: 28px;">مطلوب خادم محلي</h2>
+                <p style="margin-bottom: 25px; line-height: 1.8; font-size: 18px; color: #ccc;">
+                    التطبيق يعمل حالياً على بروتوكول <code style="background: #333; padding: 2px 8px; border-radius: 4px; color: #ff6b6b;">file://</code> 
+                    مما يمنع A-Frame والواقع المعزز من العمل بشكل صحيح.
+                </p>
+                
+                <div style="background: #2a2a2a; padding: 25px; border-radius: 15px; margin: 25px 0; text-align: right;">
+                    <h3 style="color: #4CAF50; margin-bottom: 20px; text-align: center;">الحلول السريعة:</h3>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #67B7DC; margin-bottom: 10px;">🔥 الأسرع - VS Code Live Server:</h4>
+                        <p style="margin-right: 20px; color: #ddd; line-height: 1.6;">
+                            • افتح المجلد في VS Code<br>
+                            • انقر بزر الماوس الأيمن على index.html<br>
+                            • اختر "Open with Live Server"
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #67B7DC; margin-bottom: 10px;">🐍 Python:</h4>
+                        <p style="margin-right: 20px; color: #ddd; background: #333; padding: 10px; border-radius: 5px; font-family: monospace;">
+                            python -m http.server 8000
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 style="color: #67B7DC; margin-bottom: 10px;">📦 Node.js:</h4>
+                        <p style="margin-right: 20px; color: #ddd; background: #333; padding: 10px; border-radius: 5px; font-family: monospace;">
+                            npx serve .
+                        </p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button onclick="this.parentElement.parentElement.style.display='none'" 
+                            style="background: #4CAF50; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 18px; margin-left: 10px; font-family: Cairo, sans-serif;">
+                        فهمت - سأستخدم خادم محلي
+                    </button>
+                    <button onclick="window.open('https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer', '_blank')" 
+                            style="background: #007ACC; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 18px; font-family: Cairo, sans-serif;">
+                        تحميل Live Server
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Add manifest conditionally to avoid CORS issues on file:// protocol
+        if (window.location.protocol !== 'file:') {
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = 'manifest.json';
+            document.head.appendChild(manifestLink);
+        }
+        
+        // Show file protocol warning if necessary
+        if (window.location.protocol === 'file:') {
+            document.getElementById('file-protocol-warning').style.display = 'flex';
+        }
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
