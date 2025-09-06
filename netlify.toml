@@ -1,5 +1,6 @@
 [build]
   publish = "."
+  command = ""
 
 [[headers]]
   for = "/*"
@@ -10,14 +11,22 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[headers]]
-  for = "*.js"
+  for = "*.css"
   [headers.values]
+    Content-Type = "text/css; charset=utf-8"
     Cache-Control = "public, max-age=31536000"
 
 [[headers]]
-  for = "*.css"
+  for = "*.js"
   [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
     Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "*.html"
+  [headers.values]
+    Content-Type = "text/html; charset=utf-8"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[redirects]]
   from = "/*"
