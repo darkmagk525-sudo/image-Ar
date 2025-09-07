@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Professional AR Image Viewer with React - Create AR experiences from images",
   "private": true,
-  "homepage": "https://yourusername.github.io/ar-image-viewer",
+  "homepage": ".",
   "dependencies": {
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
