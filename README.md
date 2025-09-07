@@ -313,3 +313,6 @@ npm run deploy
 "#Netlify1"  
 "#Netlify1"  
 "# image-editor" 
+"# image-Ar" 
+#   i m a g e - A r  
+ 

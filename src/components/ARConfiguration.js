@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const ARConfiguration = ({ image, onSave, onBack }) => {
   const [config, setConfig] = useState({
     scale: 1,
-    height: 0,
+    height: 1,
     rotation: 0,
     animation: 'none',
     glow: false,
@@ -18,9 +18,7 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
   const animations = [
     { id: 'none', name: 'بدون حركة', icon: '🚫' },
     { id: 'rotation', name: 'دوران', icon: '🔄' },
-    { id: 'float', name: 'طفو', icon: '⬆️' },
-    { id: 'pulse', name: 'نبض', icon: '💓' },
-    { id: 'bounce', name: 'ارتداد', icon: '⚡' }
+    { id: 'pulse', name: 'نبض', icon: '💓' }
   ];
 
   const markers = [
@@ -32,7 +30,7 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
 
   useEffect(() => {
     const style = {
-      transform: `scale(${config.scale}) rotate(${config.rotation}deg) translateY(${config.height}px)`,
+      transform: `scale(${config.scale}, ${config.scale * (config.height || 1)}) rotate(${config.rotation}deg)`,
       filter: `
         ${config.glow ? 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.8))' : ''}
         ${config.shadow ? 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5))' : ''}
@@ -146,14 +144,14 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
               <div className="control-input">
                 <input
                   type="range"
-                  min="-100"
-                  max="100"
-                  step="5"
+                  min="0.1"
+                  max="3"
+                  step="0.1"
                   value={config.height}
-                  onChange={(e) => handleConfigChange('height', parseInt(e.target.value))}
+                  onChange={(e) => handleConfigChange('height', parseFloat(e.target.value))}
                   className="config-slider"
                 />
-                <span className="control-value">{config.height}px</span>
+                <span className="control-value">{(config.height || 1).toFixed(1)}x</span>
               </div>
             </div>
 

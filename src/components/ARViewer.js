@@ -47,9 +47,9 @@ const ARViewer = ({ arConfig, onClose }) => {
                   <img 
                     src={arConfig.image} 
                     alt="AR Object"
-                    className={`ar-preview-image ${arConfig.animation || 'none'}`}
+                    className={`ar-preview-image ${arConfig.animation === 'rotation' ? 'rotation' : arConfig.animation === 'pulse' ? 'pulse' : ''}`}
                     style={{
-                      transform: `scale(${arConfig.scale || 1}) rotate(${arConfig.rotation || 0}deg)`,
+                      transform: `scale(${arConfig.scale || 1}, ${(arConfig.scale || 1) * (arConfig.height || 1)}) rotate(${arConfig.rotation || 0}deg)`,
                       filter: arConfig.glow ? 'drop-shadow(0 0 20px #6366f1)' : 'none'
                     }}
                   />

@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 
 const ShareExperience = ({ arConfig, onNewExperience, onViewAR }) => {
   const [shareUrl, setShareUrl] = useState('');
+  const [customLink, setCustomLink] = useState('');
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const qrCanvasRef = useRef(null);
 
   useEffect(() => {
     generateShareUrl();
-    generateQRCode();
   }, [arConfig]);
 
   const generateShareUrl = () => {
@@ -17,47 +18,24 @@ const ShareExperience = ({ arConfig, onNewExperience, onViewAR }) => {
     setShareUrl(url);
   };
 
-  const generateQRCode = () => {
-    const canvas = qrCanvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    const size = 200;
-    canvas.width = size;
-    canvas.height = size;
-
-    // Create a simple pattern for QR code (placeholder)
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-    
-    ctx.fillStyle = '#000000';
-    const blockSize = size / 25;
-    
-    // Generate a simple pattern
-    for (let i = 0; i < 25; i++) {
-      for (let j = 0; j < 25; j++) {
-        if ((i + j) % 3 === 0 || (i * j) % 7 === 0) {
-          ctx.fillRect(i * blockSize, j * blockSize, blockSize, blockSize);
-        }
+  useEffect(() => {
+    const makeQR = async () => {
+      if (!shareUrl) return;
+      const canvas = qrCanvasRef.current;
+      if (!canvas) return;
+      try {
+        await QRCode.toCanvas(canvas, shareUrl, {
+          width: 220,
+          margin: 1,
+          color: { dark: '#000000', light: '#FFFFFF' }
+        });
+        setQrDataUrl(canvas.toDataURL());
+      } catch (err) {
+        console.error('QR generation failed', err);
       }
-    }
-
-    // Add corner markers
-    const markerSize = blockSize * 7;
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, markerSize, markerSize);
-    ctx.fillRect(size - markerSize, 0, markerSize, markerSize);
-    ctx.fillRect(0, size - markerSize, markerSize, markerSize);
-    
-    ctx.fillStyle = '#ffffff';
-    const innerSize = blockSize * 5;
-    const offset = blockSize;
-    ctx.fillRect(offset, offset, innerSize, innerSize);
-    ctx.fillRect(size - markerSize + offset, offset, innerSize, innerSize);
-    ctx.fillRect(offset, size - markerSize + offset, innerSize, innerSize);
-
-    setQrDataUrl(canvas.toDataURL());
-  };
+    };
+    makeQR();
+  }, [shareUrl]);
 
   const copyToClipboard = async () => {
     try {
@@ -74,6 +52,55 @@ const ShareExperience = ({ arConfig, onNewExperience, onViewAR }) => {
     link.download = 'ar-experience-qr.png';
     link.href = qrDataUrl;
     link.click();
+  };
+
+  const applyCustomLink = () => {
+    try {
+      const normalized = new URL(customLink).toString();
+      setShareUrl(normalized);
+      setCopied(false);
+    } catch (e) {
+      alert('الرجاء إدخال رابط صحيح');
+    }
+  };
+
+  const clearCustomLink = () => {
+    setCustomLink('');
+    generateShareUrl();
+  };
+
+  const isYouTubeUrl = (url) => {
+    try {
+      const u = new URL(url);
+      return (
+        u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')
+      );
+    } catch (_) {
+      return false;
+    }
+  };
+
+  const toYouTubeEmbed = (url) => {
+    try {
+      const u = new URL(url);
+      // youtu.be/<id>
+      if (u.hostname.includes('youtu.be')) {
+        return `https://www.youtube.com/embed/${u.pathname.replace('/', '')}`;
+      }
+      // youtube.com/watch?v=<id>
+      if (u.pathname === '/watch' && u.searchParams.get('v')) {
+        return `https://www.youtube.com/embed/${u.searchParams.get('v')}`;
+      }
+      // youtube.com/shorts/<id>
+      if (u.pathname.startsWith('/shorts/')) {
+        const parts = u.pathname.split('/');
+        const id = parts[2] || '';
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      return url;
+    } catch (_) {
+      return url;
+    }
   };
 
   const shareNative = async () => {
@@ -167,12 +194,50 @@ const ShareExperience = ({ arConfig, onNewExperience, onViewAR }) => {
               {copied ? '✓' : '📋'}
             </button>
           </div>
+          <div className="link-input-wrapper">
+            <input
+              type="text"
+              placeholder="أدخل رابط مخصص (مثل رابط يوتيوب)"
+              value={customLink}
+              onChange={(e) => setCustomLink(e.target.value)}
+              className="share-link-input"
+            />
+            <button onClick={applyCustomLink} className="share-action-btn">
+              <span className="btn-icon">✅</span>
+              تعيين الرابط
+            </button>
+            <button onClick={clearCustomLink} className="share-action-btn">
+              <span className="btn-icon">🧹</span>
+              إزالة
+            </button>
+          </div>
           <div className="link-actions">
-            <button onClick={shareNative} className="share-action-btn primary">
+            <button onClick={onViewAR} className="share-action-btn primary">
+              <span className="btn-icon">👁️</span>
+              عرض المشروع
+            </button>
+            <button onClick={shareNative} className="share-action-btn">
               <span className="btn-icon">📤</span>
               مشاركة
             </button>
+            <button onClick={downloadQR} className="share-action-btn">
+              <span className="btn-icon">⬇️</span>
+              تحميل QR
+            </button>
           </div>
+          {isYouTubeUrl(shareUrl) && (
+            <div style={{ marginTop: '1rem', borderRadius: '12px', overflow: 'hidden' }}>
+              <iframe
+                title="معاينة الفيديو"
+                width="100%"
+                height="300"
+                src={toYouTubeEmbed(shareUrl)}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          )}
         </div>
 
         {/* Experience Preview Card */}

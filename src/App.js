@@ -12,6 +12,8 @@ function App() {
   const [message, setMessage] = useState('');
   const [showARViewer, setShowARViewer] = useState(false);
   const [savedExperiences, setSavedExperiences] = useState([]);
+  const [activeNavItem, setActiveNavItem] = useState('new-project');
+  const [showPreviousProjects, setShowPreviousProjects] = useState(false);
 
   // Load saved experiences on component mount
   useEffect(() => {
@@ -27,6 +29,45 @@ function App() {
     } catch (error) {
       console.error('Error loading saved experiences:', error);
     }
+  };
+
+  // Navigation functions
+  const handleNewProject = () => {
+    setActiveNavItem('new-project');
+    setCurrentStep(1);
+    setCurrentImage(null);
+    setArConfig(null);
+    setMessage('');
+    setShowARViewer(false);
+  };
+
+  const handlePreviousProjects = () => {
+    setActiveNavItem('previous-projects');
+    setShowPreviousProjects(true);
+    setMessage('');
+  };
+
+  const handleAR = () => {
+    setActiveNavItem('ar');
+    if (currentImage && arConfig) {
+      setShowARViewer(true);
+    } else {
+      setMessage('يرجى رفع صورة وتكوين إعدادات AR أولاً');
+    }
+  };
+
+  const handleAI = () => {
+    setActiveNavItem('ai');
+    setMessage('مرحباً! أنا مساعدك الذكي. كيف يمكنني مساعدتك؟');
+  };
+
+  const loadPreviousProject = (experience) => {
+    setCurrentImage(experience.image);
+    setArConfig(experience.config);
+    setCurrentStep(3); // Go to AR configuration step
+    setShowPreviousProjects(false);
+    setActiveNavItem('new-project');
+    setMessage('تم تحميل المشروع بنجاح!');
   };
 
   const saveExperience = (experience) => {
@@ -51,9 +92,8 @@ function App() {
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setCurrentImage(e.target.result);
-        setCurrentStep(2);
-        showMessage('تم تحميل الصورة بنجاح');
+        const dataUrl = e.target.result;
+        autoEnhanceAndProceed(dataUrl);
       };
       reader.readAsDataURL(file);
     }
@@ -111,10 +151,7 @@ function App() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(videoElement, 0, 0);
         const imageData = canvas.toDataURL('image/png');
-        
-        setCurrentImage(imageData);
-        setCurrentStep(2);
-        showMessage('تم التقاط الصورة بنجاح');
+        autoEnhanceAndProceed(imageData);
         closeCamera();
       };
       
@@ -139,15 +176,40 @@ function App() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         const imageData = canvas.toDataURL('image/png');
-        
-        setCurrentImage(imageData);
-        setCurrentStep(2);
-        showMessage('تم تحميل الصورة من الرابط بنجاح');
+        autoEnhanceAndProceed(imageData);
       };
       img.onerror = () => {
         showMessage('فشل في تحميل الصورة من الرابط');
       };
       img.src = url;
+    }
+  };
+
+  // Basic auto-enhance using canvas filters as a lightweight AI-like improvement
+  const autoEnhanceAndProceed = (dataUrl) => {
+    try {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxWidth = 1000;
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        // Apply gentle enhancements: brightness, contrast, saturation, slight sharpness approximation
+        ctx.filter = 'brightness(105%) contrast(110%) saturate(110%)';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const enhanced = canvas.toDataURL('image/png');
+        setCurrentImage(enhanced);
+        setCurrentStep(3);
+        showMessage('تم تحسين الصورة تلقائياً وجاهزة لإعداد AR');
+      };
+      img.src = dataUrl;
+    } catch (err) {
+      // Fallback to original
+      setCurrentImage(dataUrl);
+      setCurrentStep(3);
+      showMessage('تم تحميل الصورة');
     }
   };
 
@@ -198,18 +260,89 @@ function App() {
           onClose={handleCloseARViewer}
         />
       ) : (
-        <>
-          <header className="app-header">
-            <h1>AR Creator Pro</h1>
-            <p>إنشاء تجارب الواقع المعزز من الصور</p>
-            {savedExperiences.length > 0 && (
-              <div className="saved-count">
-                📁 {savedExperiences.length} تجربة محفوظة
+        <div className="app-layout">
+          {/* Sidebar Navigation */}
+          <aside className="app-sidebar">
+            <div className="logo-section">
+              <div className="logo">
+                <span className="logo-icon">🎨</span>
+                <span className="logo-text">E-asy comme</span>
+              </div>
+            </div>
+            
+              <nav className="sidebar-nav">
+                <div 
+                  className={`nav-item ${activeNavItem === 'new-project' ? 'active' : ''}`}
+                  onClick={handleNewProject}
+                >
+                  <span className="nav-icon">✨</span>
+                  <span className="nav-text">New project</span>
+                </div>
+                <div 
+                  className={`nav-item ${activeNavItem === 'previous-projects' ? 'active' : ''}`}
+                  onClick={handlePreviousProjects}
+                >
+                  <span className="nav-icon">📁</span>
+                  <span className="nav-text">Projets antérieurs</span>
+                </div>
+                <div 
+                  className={`nav-item ${activeNavItem === 'ar' ? 'active' : ''}`}
+                  onClick={handleAR}
+                >
+                  <span className="nav-icon">🥽</span>
+                  <span className="nav-text">AR</span>
+                </div>
+              </nav>
+
+            <div className="ai-section">
+              <div 
+                className={`ai-bubble ${activeNavItem === 'ai' ? 'active' : ''}`}
+                onClick={handleAI}
+              >
+                <span className="ai-text">AI</span>
+              </div>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <main className="app-main">
+            {/* Message Display */}
+            {message && (
+              <div className="message-display">
+                <p>{message}</p>
               </div>
             )}
-          </header>
 
-          <main className="app-main">
+            {/* Previous Projects Display */}
+            {showPreviousProjects && (
+              <div className="previous-projects">
+                <h2>المشاريع السابقة ({savedExperiences.length})</h2>
+                {savedExperiences.length === 0 ? (
+                  <p className="no-projects">لا توجد مشاريع محفوظة</p>
+                ) : (
+                  <div className="projects-grid">
+                    {savedExperiences.map((experience, index) => (
+                      <div key={index} className="project-card" onClick={() => loadPreviousProject(experience)}>
+                        <div className="project-preview">
+                          <img src={experience.image} alt={`Project ${index + 1}`} />
+                        </div>
+                        <div className="project-info">
+                          <h3>مشروع {index + 1}</h3>
+                          <p>تم الحفظ: {new Date(experience.timestamp).toLocaleDateString('ar-EG')}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <button 
+                  className="close-projects-btn"
+                  onClick={() => setShowPreviousProjects(false)}
+                >
+                  إغلاق
+                </button>
+              </div>
+            )}
+
             {/* Step Indicator */}
             <div className="step-indicator">
               <div className={`step ${currentStep >= 1 ? 'active' : ''} ${currentStep === 1 ? 'current' : ''}`}>
@@ -233,11 +366,15 @@ function App() {
             {/* Step 1: Upload */}
             {currentStep === 1 && (
               <div className="upload-section animate-fade-in">
-                <h2>رفع الصورة</h2>
-                <div className="upload-options">
-                  
-                  {/* Gallery Upload */}
-                  <div className="upload-option">
+                <div className="upload-container">
+                  <div className="upload-card">
+                    <h2>Upload image</h2>
+                    <div className="upload-cloud">
+                      <span className="cloud-icon">☁️</span>
+                    </div>
+                    <div className="upload-options-layout">
+                      {/* Gallery on top */}
+                      <div className="upload-option-top">
                     <input
                       type="file"
                       accept="image/*"
@@ -245,46 +382,31 @@ function App() {
                       style={{ display: 'none' }}
                       id="imageInput"
                     />
-                    <label htmlFor="imageInput" className="upload-button gallery">
-                      <div className="upload-icon">🖼️</div>
-                      <h3>من المعرض</h3>
-                      <p>اختر صورة من معرض الصور</p>
+                        <label htmlFor="imageInput" style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
+                          <span className="option-icon">🖼️</span>
+                          <span className="option-text">Upload image</span>
                     </label>
                   </div>
 
-                  {/* Camera Capture */}
-                  <div className="upload-option">
-                    <button onClick={handleCameraCapture} className="upload-button camera">
-                      <div className="upload-icon">📷</div>
-                      <h3>التقاط صورة</h3>
-                      <p>استخدم الكاميرا لالتقاط صورة جديدة</p>
-                    </button>
+                      {/* Link and Camera side by side */}
+                      <div className="upload-options-bottom">
+                        <div className="upload-option-new" onClick={handleUrlUpload}>
+                          <span className="option-icon">🔗</span>
+                          <span className="option-text">Paste the image link</span>
+                        </div>
+                        <div className="upload-option-new" onClick={handleCameraCapture}>
+                          <span className="option-icon">📷</span>
+                          <span className="option-text">pick up image</span>
+                        </div>
+                      </div>
                   </div>
-
-                  {/* URL Upload */}
-                  <div className="upload-option">
-                    <button onClick={handleUrlUpload} className="upload-button url">
-                      <div className="upload-icon">🔗</div>
-                      <h3>من رابط</h3>
-                      <p>أدخل رابط صورة من الإنترنت</p>
-                    </button>
                   </div>
-
                 </div>
               </div>
             )}
 
             {/* Step 2: Edit */}
-            {currentStep === 2 && currentImage && (
-              <div className="animate-slide-in">
-                <ImageEditor
-                  image={currentImage}
-                  onSave={handleImageEdit}
-                  onBack={() => setCurrentStep(1)}
-                  onSkip={() => setCurrentStep(3)}
-                />
-              </div>
-            )}
+            {/* التحرير اليدوي غير مطلوب حسب طلب العميل، سيتم التخطي تلقائياً */}
 
             {/* Step 3: AR Configuration */}
             {currentStep === 3 && currentImage && (
@@ -315,7 +437,7 @@ function App() {
               </div>
             )}
           </main>
-        </>
+        </div>
       )}
     </div>
   );
