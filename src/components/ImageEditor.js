@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 const ImageEditor = ({ image, onSave, onBack, onSkip }) => {
   const canvasRef = useRef(null);
@@ -26,15 +26,15 @@ const ImageEditor = ({ image, onSave, onBack, onSkip }) => {
 
   useEffect(() => {
     loadImageToCanvas();
-  }, [image]);
+  }, [image, loadImageToCanvas]);
 
   useEffect(() => {
     if (originalImage) {
       applyFilters();
     }
-  }, [filters, effects, originalImage]);
+  }, [filters, effects, originalImage, applyFilters]);
 
-  const loadImageToCanvas = () => {
+  const loadImageToCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     const img = new Image();
@@ -62,9 +62,9 @@ const ImageEditor = ({ image, onSave, onBack, onSkip }) => {
     };
     
     img.src = image;
-  };
+  }, [image]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     if (!originalImage) return;
     
     setIsLoading(true);
@@ -100,7 +100,7 @@ const ImageEditor = ({ image, onSave, onBack, onSkip }) => {
     ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
     
     setTimeout(() => setIsLoading(false), 100);
-  };
+  }, [originalImage, filters, effects]);
 
   const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({

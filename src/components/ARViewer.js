@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 
 const ARViewer = ({ arConfig, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [cameraActive, setCameraActive] = useState(false);
 
   useEffect(() => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setIsLoading(false);
-      setCameraActive(true);
     }, 2000);
 
     return () => clearTimeout(timer);

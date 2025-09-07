@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import ARConfiguration from './components/ARConfiguration';
-import ImageEditor from './components/ImageEditor';
 import ShareExperience from './components/ShareExperience';
 import ARViewer from './components/ARViewer';
 
@@ -213,11 +212,6 @@ function App() {
     }
   };
 
-  const handleImageEdit = (editedImage) => {
-    setCurrentImage(editedImage);
-    setCurrentStep(3);
-    showMessage('تم حفظ التعديلات بنجاح!');
-  };
 
   const handleARSave = (config) => {
     const arData = {
