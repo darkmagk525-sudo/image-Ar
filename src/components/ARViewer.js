@@ -22,7 +22,7 @@ const ARViewer = ({ arConfig, onClose }) => {
     // Simulate loading time
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -48,22 +48,30 @@ const ARViewer = ({ arConfig, onClose }) => {
           <div className="ar-scene-container">
             <a-scene 
               embedded 
-              arjs="sourceType: webcam; debugUIEnabled: false;"
+              arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
               vr-mode-ui="enabled: false"
               renderer="logarithmicDepthBuffer: true;"
+              stats="false"
+              loading-screen="enabled: false"
+              background="color: #000000"
+              camera="fov: 80; near: 0.1; far: 1000;"
             >
-              <a-marker-camera preset="hiro">
+              <a-light type="ambient" color="#ffffff" intensity="0.8"></a-light>
+              <a-light type="directional" color="#ffffff" intensity="0.5" position="0 1 0"></a-light>
+              <a-light type="point" color="#ffffff" intensity="0.3" position="0 0 2"></a-light>
+              <a-assets>
+                <img id="ar-image" src={arConfig.image} crossOrigin="anonymous" />
+              </a-assets>
+              <a-marker preset={arConfig.marker || "hiro"}>
                 <a-plane 
-                  src={arConfig.image}
-                  rotation="-90 0 0"
-                  width={arConfig.scale || 1}
-                  height={(arConfig.scale || 1) * (arConfig.height || 1)}
+                  src="#ar-image"
                   position="0 0 0"
-                  animation={arConfig.animation === 'rotation' ? 'property: rotation; to: 0 360 0; loop: true; dur: 2000' : 
-                           arConfig.animation === 'pulse' ? 'property: scale; to: 1.2 1.2 1.2; loop: true; dur: 1000; dir: alternate' : ''}
-                  material={`opacity: 1; transparent: true; ${arConfig.glow ? 'shader: flat; color: #6366f1;' : ''}`}
+                  width="2"
+                  height="2"
+                  rotation="-90 0 0"
+                  material="transparent: true; alphaTest: 0.1; side: double;"
                 ></a-plane>
-              </a-marker-camera>
+              </a-marker>
             </a-scene>
             
             <div className="ar-fallback">
@@ -81,17 +89,13 @@ const ARViewer = ({ arConfig, onClose }) => {
                     <img 
                       src={arConfig.image} 
                       alt="AR Object"
-                      className={`ar-preview-image ${arConfig.animation === 'rotation' ? 'rotation' : arConfig.animation === 'pulse' ? 'pulse' : ''}`}
+                      className="ar-preview-image"
                       style={{
-                        transform: `scale(${arConfig.scale || 1}, ${(arConfig.scale || 1) * (arConfig.height || 1)}) rotate(${arConfig.rotation || 0}deg)`,
-                        filter: arConfig.glow ? 'drop-shadow(0 0 20px #6366f1)' : 'none'
+                        maxWidth: '200px',
+                        maxHeight: '200px',
+                        objectFit: 'contain'
                       }}
                     />
-                    {arConfig.animation !== 'none' && (
-                      <div className="animation-indicator">
-                        ✨ {arConfig.animation}
-                      </div>
-                    )}
                   </div>
 
                   <div className="detection-status">
@@ -135,10 +139,7 @@ const ARViewer = ({ arConfig, onClose }) => {
           <div className="ar-info">
             <h3>معلومات التجربة</h3>
             <div className="info-details">
-              <div><strong>العنوان:</strong> {arConfig.title || 'تجربة AR'}</div>
-              <div><strong>الوصف:</strong> {arConfig.description || 'تجربة واقع معزز'}</div>
-              <div><strong>الحجم:</strong> {arConfig.scale || 1}x</div>
-              <div><strong>الحركة:</strong> {arConfig.animation || 'none'}</div>
+              <div><strong>العلامة:</strong> {arConfig.marker || 'hiro'}</div>
             </div>
           </div>
         </>

@@ -259,7 +259,6 @@ function App() {
           <aside className="app-sidebar">
             <div className="logo-section">
               <div className="logo">
-                <span className="logo-icon">🎨</span>
                 <span className="logo-text">E-asy comme</span>
               </div>
             </div>
@@ -269,21 +268,18 @@ function App() {
                   className={`nav-item ${activeNavItem === 'new-project' ? 'active' : ''}`}
                   onClick={handleNewProject}
                 >
-                  <span className="nav-icon">✨</span>
                   <span className="nav-text">New project</span>
                 </div>
                 <div 
                   className={`nav-item ${activeNavItem === 'previous-projects' ? 'active' : ''}`}
                   onClick={handlePreviousProjects}
                 >
-                  <span className="nav-icon">📁</span>
                   <span className="nav-text">Projets antérieurs</span>
                 </div>
                 <div 
                   className={`nav-item ${activeNavItem === 'ar' ? 'active' : ''}`}
                   onClick={handleAR}
                 >
-                  <span className="nav-icon">🥽</span>
                   <span className="nav-text">AR</span>
                 </div>
               </nav>

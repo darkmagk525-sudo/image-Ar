@@ -384,56 +384,6 @@
                         
                         <div class="ar-controls">
                             <div class="control-section">
-                                <h3>خصائص الصورة</h3>
-                                <div class="control-group">
-                                    <label>الحجم</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="ar-scale" min="0.1" max="5" value="1" step="0.1">
-                                        <span class="slider-value" id="scale-value">1.0x</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label>الارتفاع</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="ar-height" min="-2" max="3" value="0" step="0.1">
-                                        <span class="slider-value" id="height-value">0.0m</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label>الدوران</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="ar-rotation" min="0" max="360" value="0">
-                                        <span class="slider-value" id="rotation-value">0°</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="control-section">
-                                <h3>تأثيرات AR</h3>
-                                <div class="effect-toggles">
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="ar-animation">
-                                        <span class="toggle-slider"></span>
-                                        <span class="toggle-label">حركة دورانية</span>
-                                    </label>
-                                    
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="ar-glow">
-                                        <span class="toggle-slider"></span>
-                                        <span class="toggle-label">توهج</span>
-                                    </label>
-                                    
-                                    <label class="toggle-switch">
-                                        <input type="checkbox" id="ar-shadow">
-                                        <span class="toggle-slider"></span>
-                                        <span class="toggle-label">ظلال</span>
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="control-section">
                                 <h3>نوع العلامة</h3>
                                 <div class="marker-options">
                                     <label class="marker-option">
@@ -604,38 +554,25 @@
                         renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
                         loading-screen="enabled: false">
                         
-                        <a-assets timeout="10000">
-                            <img id="ar-target-image" crossorigin="anonymous" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PC9zdmc+">
+                        <a-assets timeout="30000">
+                            <img id="ar-target-image" crossorigin="anonymous" src="">
                         </a-assets>
                         
                         <a-marker preset="hiro" id="ar-marker">
                             <a-image 
                                 id="ar-display-image"
-                                src="#ar-target-image"
+                                src=""
                                 position="0 0 0"
-                                scale="1 1 1"
+                                width="2"
+                                height="2"
                                 rotation="-90 0 0"
-                                material="transparent: true; alphaTest: 0.1"
-                                animation__mouseenter="property: scale; to: 1.1 1.1 1.1; startEvents: mouseenter; dur: 300"
-                                animation__mouseleave="property: scale; to: 1 1 1; startEvents: mouseleave; dur: 300">
+                                material="transparent: true; alphaTest: 0.1; side: double;"
+                                visible="true">
                             </a-image>
                             
                             <!-- Lighting -->
-                            <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
-                            <a-light type="directional" position="2 4 2" color="#ffffff" intensity="0.8" shadow="cast: true"></a-light>
-                            
-                            <!-- Optional effects -->
-                            <a-ring 
-                                id="ar-ring-effect"
-                                position="0 -0.01 0"
-                                rotation="-90 0 0"
-                                radius-inner="0.8"
-                                radius-outer="1.2"
-                                color="#667eea"
-                                opacity="0.3"
-                                animation="property: rotation; to: -90 360 0; loop: true; dur: 10000"
-                                visible="false">
-                            </a-ring>
+                            <a-light type="ambient" color="#ffffff" intensity="0.8"></a-light>
+                            <a-light type="directional" position="2 4 2" color="#ffffff" intensity="0.5"></a-light>
                         </a-marker>
                         
                         <a-entity camera look-controls wasd-controls></a-entity>

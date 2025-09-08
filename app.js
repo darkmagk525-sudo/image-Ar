@@ -178,33 +178,6 @@ class ARCreatorPro {
     }
 
     bindARConfigEvents() {
-        // AR property controls
-        const arSliders = ['ar-scale', 'ar-height', 'ar-rotation'];
-        
-        arSliders.forEach(sliderId => {
-            const slider = document.getElementById(sliderId);
-            const valueSpan = document.getElementById(sliderId.replace('ar-', '') + '-value');
-            
-            if (slider && valueSpan) {
-                slider.addEventListener('input', (e) => {
-                    const value = e.target.value;
-                    let unit = '';
-                    
-                    if (sliderId === 'ar-scale') unit = 'x';
-                    else if (sliderId === 'ar-height') unit = 'm';
-                    else if (sliderId === 'ar-rotation') unit = '°';
-                    
-                    valueSpan.textContent = value + unit;
-                    this.updateARPreview();
-                });
-            }
-        });
-
-        // AR effect toggles
-        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
-            toggle.addEventListener('change', () => this.updateARPreview());
-        });
-
         // Marker selection
         document.querySelectorAll('input[name="marker-type"]').forEach(radio => {
             radio.addEventListener('change', () => this.updateARPreview());
@@ -638,26 +611,13 @@ class ARCreatorPro {
     }
 
     updateARPreview() {
-        const scale = document.getElementById('ar-scale')?.value || 1;
-        const height = document.getElementById('ar-height')?.value || 0;
-        const rotation = document.getElementById('ar-rotation')?.value || 0;
-
         const preview = document.getElementById('ar-image-preview');
         if (preview && this.currentImage) {
             preview.style.backgroundImage = `url(${this.currentImage})`;
             preview.style.backgroundSize = 'cover';
             preview.style.backgroundPosition = 'center';
-            preview.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
-            preview.style.bottom = `${height * 50 + 50}%`;
-        }
-
-        // Update effects
-        const glow = document.getElementById('ar-glow')?.checked;
-        const shadow = document.getElementById('ar-shadow')?.checked;
-        
-        if (preview) {
-            preview.style.boxShadow = glow ? '0 0 20px rgba(102, 126, 234, 0.8)' : 'var(--shadow-xl)';
-            preview.style.filter = shadow ? 'drop-shadow(0 10px 20px rgba(0,0,0,0.5))' : 'none';
+            preview.style.transform = `translate(-50%, -50%) scale(1)`;
+            preview.style.bottom = '50%';
         }
     }
 
@@ -677,20 +637,17 @@ class ARCreatorPro {
             const editedImageUrl = editedBlob ? await this.blobToDataURL(editedBlob) : this.currentImage;
             console.log('Edited image generated successfully');
 
-            // Create AR data
+            // Create AR data with proper defaults
             const arId = this.generateUniqueId();
             console.log('Generated AR ID:', arId);
             
             const arData = {
                 id: arId,
                 image: editedImageUrl,
-                scale: parseFloat(document.getElementById('ar-scale')?.value || 1),
-                height: parseFloat(document.getElementById('ar-height')?.value || 0),
-                rotation: parseFloat(document.getElementById('ar-rotation')?.value || 0),
-                animation: document.getElementById('ar-animation')?.checked || false,
-                glow: document.getElementById('ar-glow')?.checked || false,
-                shadow: document.getElementById('ar-shadow')?.checked || false,
                 marker: document.querySelector('input[name="marker-type"]:checked')?.value || 'hiro',
+                scale: 1.0,
+                height: 0.0,
+                rotation: 0,
                 timestamp: Date.now(),
                 title: `AR Experience ${new Date().toLocaleDateString('ar-SA')}`
             };
@@ -972,27 +929,35 @@ class ARCreatorPro {
         const arImage = document.getElementById('ar-target-image');
         const arDisplayImage = document.getElementById('ar-display-image');
         const arMarker = document.getElementById('ar-marker');
-        const arRingEffect = document.getElementById('ar-ring-effect');
 
-        // Set image source
+        // Set image source and wait for it to load
+        arImage.onload = () => {
+            console.log('AR image loaded successfully');
+            // Update the a-image src attribute after the asset is loaded
+            arDisplayImage.setAttribute('src', '#ar-target-image');
+        };
+        
+        arImage.onerror = (error) => {
+            console.error('Failed to load AR image:', error);
+            this.showToast('فشل في تحميل صورة AR', 'error');
+        };
+        
         arImage.src = arData.image;
         
-        // Configure display properties
-        arDisplayImage.setAttribute('scale', `${arData.scale} ${arData.scale} ${arData.scale}`);
-        arDisplayImage.setAttribute('position', `0 ${arData.height} 0`);
-        arDisplayImage.setAttribute('rotation', `-90 ${arData.rotation} 0`);
+        // Configure display properties with proper scaling
+        const scale = arData.scale || 1.0;
+        const height = arData.height || 0.0;
+        const rotation = arData.rotation || 0;
+        
+        arDisplayImage.setAttribute('scale', `${scale} ${scale} ${scale}`);
+        arDisplayImage.setAttribute('position', `0 ${height} 0`);
+        arDisplayImage.setAttribute('rotation', `-90 ${rotation} 0`);
+        arDisplayImage.setAttribute('width', '2');
+        arDisplayImage.setAttribute('height', '2');
 
         // Configure marker
-        arMarker.setAttribute('preset', arData.marker);
-
-        // Apply effects
-        if (arData.glow) {
-            arRingEffect.setAttribute('visible', 'true');
-        }
-
-        if (arData.animation) {
-            arDisplayImage.setAttribute('animation', 'property: rotation; to: -90 360 0; loop: true; dur: 10000');
-        }
+        const markerType = arData.marker || 'hiro';
+        arMarker.setAttribute('preset', markerType);
 
         // Update status
         this.updateARStatus('ابحث عن العلامة...');
@@ -1000,10 +965,12 @@ class ARCreatorPro {
         // Listen for marker events
         arMarker.addEventListener('markerFound', () => {
             this.updateARStatus('تم العثور على العلامة!');
+            console.log('Marker found - AR should be visible now');
         });
 
         arMarker.addEventListener('markerLost', () => {
             this.updateARStatus('ابحث عن العلامة...');
+            console.log('Marker lost');
         });
     }
 

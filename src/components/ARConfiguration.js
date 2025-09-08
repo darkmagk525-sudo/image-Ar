@@ -2,12 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const ARConfiguration = ({ image, onSave, onBack }) => {
   const [config, setConfig] = useState({
-    scale: 1,
-    height: 1,
-    rotation: 0,
-    marker: 'hiro',
-    title: '',
-    description: ''
+    marker: 'hiro'
   });
 
   const [previewStyle, setPreviewStyle] = useState({});
@@ -22,7 +17,7 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
 
   useEffect(() => {
     const style = {
-      transform: `scale(${config.scale}, ${config.scale * (config.height || 1)}) rotate(${config.rotation}deg)`,
+      transform: 'scale(1)',
       transition: 'all 0.3s ease'
     };
     setPreviewStyle(style);
@@ -78,70 +73,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
 
         {/* Controls Section */}
         <div className="config-controls">
-          {/* Transform Controls */}
-          <div className="control-section">
-            <h3>
-              <span className="control-icon">📐</span>
-              التحويلات الأساسية
-            </h3>
-            
-            <div className="control-group">
-              <label>
-                <span className="control-icon">🔍</span>
-                <span className="control-name">الحجم</span>
-              </label>
-              <div className="control-input">
-                <input
-                  type="range"
-                  min="0.1"
-                  max="3"
-                  step="0.1"
-                  value={config.scale}
-                  onChange={(e) => handleConfigChange('scale', parseFloat(e.target.value))}
-                  className="config-slider"
-                />
-                <span className="control-value">{config.scale.toFixed(1)}x</span>
-              </div>
-            </div>
-
-            <div className="control-group">
-              <label>
-                <span className="control-icon">📏</span>
-                <span className="control-name">الارتفاع</span>
-              </label>
-              <div className="control-input">
-                <input
-                  type="range"
-                  min="0.1"
-                  max="3"
-                  step="0.1"
-                  value={config.height}
-                  onChange={(e) => handleConfigChange('height', parseFloat(e.target.value))}
-                  className="config-slider"
-                />
-                <span className="control-value">{(config.height || 1).toFixed(1)}x</span>
-              </div>
-            </div>
-
-            <div className="control-group">
-              <label>
-                <span className="control-icon">🔄</span>
-                <span className="control-name">الدوران</span>
-              </label>
-              <div className="control-input">
-                <input
-                  type="range"
-                  min="0"
-                  max="360"
-                  step="15"
-                  value={config.rotation}
-                  onChange={(e) => handleConfigChange('rotation', parseInt(e.target.value))}
-                  className="config-slider"
-                />
-                <span className="control-value">{config.rotation}°</span>
-              </div>
-            </div>
-          </div>
 
 
           {/* Marker Selection */}
@@ -165,37 +96,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
             </div>
           </div>
 
-          {/* Experience Info */}
-          <div className="control-section">
-            <h3>
-              <span className="control-icon">📝</span>
-              معلومات التجربة
-            </h3>
-            
-            <div className="info-inputs">
-              <div className="input-group">
-                <label>عنوان التجربة</label>
-                <input
-                  type="text"
-                  value={config.title}
-                  onChange={(e) => handleConfigChange('title', e.target.value)}
-                  placeholder="أدخل عنوان التجربة..."
-                  className="text-input"
-                />
-              </div>
-
-              <div className="input-group">
-                <label>وصف التجربة</label>
-                <textarea
-                  value={config.description}
-                  onChange={(e) => handleConfigChange('description', e.target.value)}
-                  placeholder="أدخل وصف التجربة..."
-                  rows="3"
-                  className="text-area"
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
