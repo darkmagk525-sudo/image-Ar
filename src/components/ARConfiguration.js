@@ -5,9 +5,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
     scale: 1,
     height: 1,
     rotation: 0,
-    animation: 'none',
-    glow: false,
-    shadow: false,
     marker: 'hiro',
     title: '',
     description: ''
@@ -15,11 +12,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
 
   const [previewStyle, setPreviewStyle] = useState({});
 
-  const animations = [
-    { id: 'none', name: 'بدون حركة', icon: '🚫' },
-    { id: 'rotation', name: 'دوران', icon: '🔄' },
-    { id: 'pulse', name: 'نبض', icon: '💓' }
-  ];
 
   const markers = [
     { id: 'hiro', name: 'هيرو', icon: '🎯' },
@@ -31,10 +23,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
   useEffect(() => {
     const style = {
       transform: `scale(${config.scale}, ${config.scale * (config.height || 1)}) rotate(${config.rotation}deg)`,
-      filter: `
-        ${config.glow ? 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.8))' : ''}
-        ${config.shadow ? 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5))' : ''}
-      `.trim(),
       transition: 'all 0.3s ease'
     };
     setPreviewStyle(style);
@@ -53,23 +41,8 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
     onSave(arData);
   };
 
-  const getAnimationIcon = (animationType) => {
-    const animation = animations.find(a => a.id === animationType);
-    return animation ? animation.icon : '🚫';
-  };
-
   const getPreviewClasses = () => {
-    let classes = 'preview-image';
-    if (config.animation !== 'none') {
-      classes += ` ${config.animation}`;
-    }
-    if (config.glow) {
-      classes += ' glow';
-    }
-    if (config.shadow) {
-      classes += ' shadow';
-    }
-    return classes;
+    return 'preview-image';
   };
 
   return (
@@ -90,11 +63,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
                 className={getPreviewClasses()}
                 style={previewStyle}
               />
-              {config.animation !== 'none' && (
-                <div className={`animation-indicator ${config.animation}`}>
-                  {getAnimationIcon(config.animation)}
-                </div>
-              )}
             </div>
             
             <div className="marker-preview">
@@ -175,54 +143,6 @@ const ARConfiguration = ({ image, onSave, onBack }) => {
             </div>
           </div>
 
-          {/* Animation Controls */}
-          <div className="control-section">
-            <h3>
-              <span className="control-icon">🎬</span>
-              الحركة والتأثيرات
-            </h3>
-            
-            <div className="animation-grid">
-              {animations.map(animation => (
-                <button
-                  key={animation.id}
-                  className={`animation-btn ${config.animation === animation.id ? 'active' : ''}`}
-                  onClick={() => handleConfigChange('animation', animation.id)}
-                >
-                  <span className="animation-icon">{animation.icon}</span>
-                  <span className="animation-label">{animation.name}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="effects-toggles">
-              <label className="effect-toggle">
-                <input
-                  type="checkbox"
-                  checked={config.glow}
-                  onChange={(e) => handleConfigChange('glow', e.target.checked)}
-                />
-                <span className="toggle-slider"></span>
-                <span className="toggle-label">
-                  <span className="toggle-icon">✨</span>
-                  توهج
-                </span>
-              </label>
-
-              <label className="effect-toggle">
-                <input
-                  type="checkbox"
-                  checked={config.shadow}
-                  onChange={(e) => handleConfigChange('shadow', e.target.checked)}
-                />
-                <span className="toggle-slider"></span>
-                <span className="toggle-label">
-                  <span className="toggle-icon">🌑</span>
-                  ظل
-                </span>
-              </label>
-            </div>
-          </div>
 
           {/* Marker Selection */}
           <div className="control-section">

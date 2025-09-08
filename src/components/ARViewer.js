@@ -4,6 +4,21 @@ const ARViewer = ({ arConfig, onClose }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Check WebGL support
+    const checkWebGL = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) {
+          document.body.classList.add('no-webgl');
+        }
+      } catch (e) {
+        document.body.classList.add('no-webgl');
+      }
+    };
+
+    checkWebGL();
+
     // Simulate loading time
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -31,37 +46,59 @@ const ARViewer = ({ arConfig, onClose }) => {
       ) : (
         <>
           <div className="ar-scene-container">
-            <div className="mock-camera-view">
-              <div className="camera-overlay">
-                <div className="scanning-line"></div>
-                <div className="corner-markers">
-                  <div className="corner top-left"></div>
-                  <div className="corner top-right"></div>
-                  <div className="corner bottom-left"></div>
-                  <div className="corner bottom-right"></div>
-                </div>
-                
-                <div className="ar-object-preview">
-                  <img 
-                    src={arConfig.image} 
-                    alt="AR Object"
-                    className={`ar-preview-image ${arConfig.animation === 'rotation' ? 'rotation' : arConfig.animation === 'pulse' ? 'pulse' : ''}`}
-                    style={{
-                      transform: `scale(${arConfig.scale || 1}, ${(arConfig.scale || 1) * (arConfig.height || 1)}) rotate(${arConfig.rotation || 0}deg)`,
-                      filter: arConfig.glow ? 'drop-shadow(0 0 20px #6366f1)' : 'none'
-                    }}
-                  />
-                  {arConfig.animation !== 'none' && (
-                    <div className="animation-indicator">
-                      ✨ {arConfig.animation}
-                    </div>
-                  )}
-                </div>
+            <a-scene 
+              embedded 
+              arjs="sourceType: webcam; debugUIEnabled: false;"
+              vr-mode-ui="enabled: false"
+              renderer="logarithmicDepthBuffer: true;"
+            >
+              <a-marker-camera preset="hiro">
+                <a-plane 
+                  src={arConfig.image}
+                  rotation="-90 0 0"
+                  width={arConfig.scale || 1}
+                  height={(arConfig.scale || 1) * (arConfig.height || 1)}
+                  position="0 0 0"
+                  animation={arConfig.animation === 'rotation' ? 'property: rotation; to: 0 360 0; loop: true; dur: 2000' : 
+                           arConfig.animation === 'pulse' ? 'property: scale; to: 1.2 1.2 1.2; loop: true; dur: 1000; dir: alternate' : ''}
+                  material={`opacity: 1; transparent: true; ${arConfig.glow ? 'shader: flat; color: #6366f1;' : ''}`}
+                ></a-plane>
+              </a-marker-camera>
+            </a-scene>
+            
+            <div className="ar-fallback">
+              <div className="mock-camera-view">
+                <div className="camera-overlay">
+                  <div className="scanning-line"></div>
+                  <div className="corner-markers">
+                    <div className="corner top-left"></div>
+                    <div className="corner top-right"></div>
+                    <div className="corner bottom-left"></div>
+                    <div className="corner bottom-right"></div>
+                  </div>
+                  
+                  <div className="ar-object-preview">
+                    <img 
+                      src={arConfig.image} 
+                      alt="AR Object"
+                      className={`ar-preview-image ${arConfig.animation === 'rotation' ? 'rotation' : arConfig.animation === 'pulse' ? 'pulse' : ''}`}
+                      style={{
+                        transform: `scale(${arConfig.scale || 1}, ${(arConfig.scale || 1) * (arConfig.height || 1)}) rotate(${arConfig.rotation || 0}deg)`,
+                        filter: arConfig.glow ? 'drop-shadow(0 0 20px #6366f1)' : 'none'
+                      }}
+                    />
+                    {arConfig.animation !== 'none' && (
+                      <div className="animation-indicator">
+                        ✨ {arConfig.animation}
+                      </div>
+                    )}
+                  </div>
 
-                <div className="detection-status">
-                  <div className="status-indicator active">
-                    <span className="status-dot"></span>
-                    تم اكتشاف العلامة
+                  <div className="detection-status">
+                    <div className="status-indicator active">
+                      <span className="status-dot"></span>
+                      تم اكتشاف العلامة
+                    </div>
                   </div>
                 </div>
               </div>
