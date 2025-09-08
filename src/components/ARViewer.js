@@ -60,7 +60,7 @@ const ARViewer = ({ arConfig, onClose }) => {
               <a-light type="directional" color="#ffffff" intensity="0.5" position="0 1 0"></a-light>
               <a-light type="point" color="#ffffff" intensity="0.3" position="0 0 2"></a-light>
               <a-assets>
-                <img id="ar-image" src={arConfig.image} crossOrigin="anonymous" />
+                <img id="ar-image" src={arConfig.image} crossOrigin="anonymous" alt="AR target image" />
               </a-assets>
               <a-marker preset={arConfig.marker || "hiro"}>
                 <a-plane 
